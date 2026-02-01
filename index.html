@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Net Worth Goal Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: system-ui, sans-serif; background:#0f172a; color:#e5e7eb; padding:20px; }
+    h1 { font-size:22px; margin-bottom:10px; }
+    .card { background:#020617; border-radius:12px; padding:16px; margin-bottom:12px; }
+    label { display:block; margin-top:8px; font-size:14px; color:#94a3b8; }
+    input { width:100%; padding:10px; margin-top:4px; border-radius:8px; border:none; font-size:16px; }
+    .result { font-size:18px; margin-top:8px; }
+    .big { font-size:22px; font-weight:600; }
+  </style>
+</head>
+<body>
+
+<h1>Net Worth Goal Tracker</h1>
+
+<div class="card">
+  <label>Current Net Worth</label>
+  <input id="current" type="number" placeholder="e.g. 68756">
+
+  <label>Target Net Worth</label>
+  <input id="target" type="number" placeholder="e.g. 1000000">
+
+  <label>Years to Target</label>
+  <input id="years" type="number" placeholder="e.g. 10">
+</div>
+
+<div class="card">
+  <div class="result">Target Multiple:</div>
+  <div class="big" id="multiple">—</div>
+
+  <div class="result">Required CAGR:</div>
+  <div class="big" id="cagr">—</div>
+
+  <div class="result">Monthly Net Worth Increase Needed:</div>
+  <div class="big" id="monthly">—</div>
+</div>
+
+<script>
+  const currentInput = document.getElementById('current');
+  const targetInput = document.getElementById('target');
+  const yearsInput = document.getElementById('years');
+
+  function load() {
+    currentInput.value = localStorage.getItem('nw_current') || '';
+    targetInput.value = localStorage.getItem('nw_target') || '';
+    yearsInput.value = localStorage.getItem('nw_years') || '';
+    calculate();
+  }
+
+  function save() {
+    localStorage.setItem('nw_current', currentInput.value);
+    localStorage.setItem('nw_target', targetInput.value);
+    localStorage.setItem('nw_years', yearsInput.value);
+    calculate();
+  }
+
+  function format(n) {
+    if (!isFinite(n)) return '—';
+    return n.toLocaleString(undefined, { maximumFractionDigits: 2 });
+  }
+
+  function calculate() {
+    const current = parseFloat(currentInput.value);
+    const target = parseFloat(targetInput.value);
+    const years = parseFloat(yearsInput.value);
+
+    if (!current || !target || !years) return;
+
+    const multiple = target / current;
+    const cagr = Math.pow(target / current, 1 / years) - 1;
+    const monthly = (target - current) / (years * 12);
+
+    document.getElementById('multiple').textContent = format(multiple) + 'x';
+    document.getElementById('cagr').textContent = format(cagr * 100) + '%';
+    document.getElementById('monthly').textContent = format(monthly);
+  }
+
+  currentInput.addEventListener('input', save);
+  targetInput.addEventListener('input', save);
+  yearsInput.addEventListener('input', save);
+
+  load();
+</script>
+
+</body>
+</html>
